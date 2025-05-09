@@ -156,7 +156,17 @@ class PessoaFisica(Cliente):
 
 
 def adicionar_cliente():
-    cpf = int(input("Digite o cpf do cliente:"))
+    cpf = input("Digite o cpf do cliente:")
+    lencpf = len(cpf)
+    while(lencpf != 11):
+        print("CPF deve ter 11 digitos")
+        cpf = input("Digite o cpf do cliente:")
+        lencpf = len(cpf)
+    cpf = int(cpf)
+    for cliente in clientes:
+        if cliente.cpf == cpf:
+            print("Cliente ja está cadastrado")
+            return
     nome = input("Digite o nome do cliente:")
     data_nascimento = input("Digite a data de nascimento do cliente:")
     end = input("Digite o endereco do cliente:")
