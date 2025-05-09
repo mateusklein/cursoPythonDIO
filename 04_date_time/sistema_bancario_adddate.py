@@ -1,3 +1,5 @@
+from datetime import date
+
 total_contas = 1
 MAX_SAQUE = 500
 LIM_DIARIO = 3
@@ -10,15 +12,18 @@ def criar_usuario(dic, nome, data, cpf, endereco):
     print("---------------------------------")
 
 def criar_conta(dic_contas, dic_extrato, cpf):
-    print("\n\n---------------CONTA-------------")
-    print("CRIANDO CONTA")
     global total_contas
-    dic_contas[total_contas] = dict({"cpf":cpf, "valor":0, "total_saques":0})
+    dic_contas[total_contas] = {
+        "cpf": cpf,
+        "valor": 0,
+        "total_saques": 0,
+        "ultimo_saque": date.today()  # MODIFICADO
+    }
     dic_extrato[total_contas] = []
     print("\nCONTA CRIADA COM SUCESSO!!")
     print(f"NÚMERO DA CONTA: {total_contas}")
     print("---------------------------------")
-    total_contas+=1
+    total_contas += 1
 
 def ver_cpf(cpf, dic):
     if(cpf in dic):
@@ -29,12 +34,22 @@ def ver_cpf(cpf, dic):
 def saque(dic_contas, dic_extrato, num_conta, valor_saque):
     print("\n\n------------------SAQUE-----------")
     print("REALIZANDO OPERACAO DE SAQUE")
-    if(dic_contas[num_conta]["valor"]>=valor_saque):
-        if(dic_contas[num_conta]["total_saques"]<LIM_DIARIO):
-            if(valor_saque<=MAX_SAQUE):
-                dic_contas[num_conta]["valor"]-=valor_saque
-                dic_extrato[num_conta].append(-(valor_saque))
-                dic_contas[num_conta]["total_saques"]+=1
+
+    hoje = date.today()
+    conta = dic_contas[num_conta]
+
+    # Verifica se a data do último saque é diferente de hoje
+    if conta["ultimo_saque"] != hoje:
+        conta["total_saques"] = 0  # Reseta saques do dia
+        conta["ultimo_saque"] = hoje  # Atualiza para hoje
+
+    if conta["valor"] >= valor_saque:
+        if conta["total_saques"] < LIM_DIARIO:
+            if valor_saque <= MAX_SAQUE:
+                conta["valor"] -= valor_saque
+                dic_extrato[num_conta].append(-valor_saque)
+                conta["total_saques"] += 1
+                conta["ultimo_saque"] = hoje  # Garante que a data foi atualizada
                 print("\nSAQUE REALIZADO COM SUCESSO")
             else:
                 print("\nNAO POSSIVEL REALIZAR SAQUE VALOR DO SAQUE ACIMA DE: ", MAX_SAQUE)
@@ -98,29 +113,21 @@ def mostra_usuarios(dic_usuarios, dic_contas):
 
 def criando_exemplos_manualmente(dic_usuarios, dic_contas, dic_extrato):
     global total_contas
-    dic_usuarios[11111111111] = dict({"nome":"JORGE PEREIRA DA SILVA", "data":"25/01/1997", "endereco":"RUA - 12 - NAO SEI - SP"})
-    dic_usuarios[22343223443] = dict({"nome":"ANA CLAUDIA DOS SANTOS", "data":"18/03/1999", "endereco":"RUA - 145 - SEI LA - RJ"})
-    dic_usuarios[21344444411] = dict({"nome":"OTAVIO OSMAR", "data":"20/10/2000", "endereco":"AV - 111 - EXEMPLOOOOO - SP"})
-    dic_usuarios[22332112344] = dict({"nome":"CLEBER LEMOS", "data":"10/05/2003", "endereco":"RUA - 190 - NAO SEI TAMBEM - SP"})
-    dic_usuarios[12345678900] = dict({"nome":"HENRIQUE MANUEL", "data":"23/02/2001", "endereco":"PRACA - 244 - EXEMPLOS - SP"})
-    dic_contas[total_contas] = dict({"cpf":11111111111, "valor":0, "total_saques":0})
-    dic_extrato[total_contas] = []
-    total_contas+=1
-    dic_contas[total_contas] = dict({"cpf":22343223443, "valor":0, "total_saques":0})
-    dic_extrato[total_contas] = []
-    total_contas+=1
-    dic_contas[total_contas] = dict({"cpf":21344444411, "valor":0, "total_saques":0})
-    dic_extrato[total_contas] = []
-    total_contas+=1
-    dic_contas[total_contas] = dict({"cpf":11111111111, "valor":0, "total_saques":0})
-    dic_extrato[total_contas] = []
-    total_contas+=1
-    dic_contas[total_contas] = dict({"cpf":21344444411, "valor":0, "total_saques":0})
-    dic_extrato[total_contas] = []
-    total_contas+=1
-    dic_contas[total_contas] = dict({"cpf":12345678900, "valor":0, "total_saques":0})
-    dic_extrato[total_contas] = []
-    total_contas+=1
+    dic_usuarios[11111111111] = {"nome":"JORGE PEREIRA DA SILVA", "data":"25/01/1997", "endereco":"RUA - 12 - NAO SEI - SP"}
+    dic_usuarios[22343223443] = {"nome":"ANA CLAUDIA DOS SANTOS", "data":"18/03/1999", "endereco":"RUA - 145 - SEI LA - RJ"}
+    dic_usuarios[21344444411] = {"nome":"OTAVIO OSMAR", "data":"20/10/2000", "endereco":"AV - 111 - EXEMPLOOOOO - SP"}
+    dic_usuarios[22332112344] = {"nome":"CLEBER LEMOS", "data":"10/05/2003", "endereco":"RUA - 190 - NAO SEI TAMBEM - SP"}
+    dic_usuarios[12345678900] = {"nome":"HENRIQUE MANUEL", "data":"23/02/2001", "endereco":"PRACA - 244 - EXEMPLOS - SP"}
+
+    for cpf in [11111111111, 22343223443, 21344444411, 11111111111, 21344444411, 12345678900]:
+        dic_contas[total_contas] = {
+            "cpf": cpf,
+            "valor": 0,
+            "total_saques": 0,
+            "ultimo_saque": date.today()  # MODIFICADO
+        }
+        dic_extrato[total_contas] = []
+        total_contas += 1
 
 def menu():
     print("\n\n--------MENU--------")
